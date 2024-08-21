@@ -45,6 +45,7 @@
         "@clr/core": "^4.0.15",
         "@clr/icons": "^13.0.2",
         "@clr/ui": "^17.0.1",
+        "@google-cloud/pubsub": "4.5.0",
         "@messageformat/core": "^3.2.0",
         "@ng-select/ng-select": "^12.0.7",
         "@ngx-translate/core": "^15.0.0",
@@ -58,7 +59,9 @@
         "dayjs": "^1.11.10",
         "graphql": "~16.9.0",
         "just-extend": "^6.2.0",
+        "localtunnel": "1.8.3",
         "messageformat": "2.3.0",
+        "mjml": "4.7.1",
         "ngx-pagination": "^6.0.3",
         "ngx-translate-messageformat-compiler": "^6.5.0",
         "prosemirror-commands": "^1.5.2",
@@ -110,7 +113,7 @@
         "karma-jasmine-html-reporter": "^1.7.0",
         "karma-mocha-reporter": "^2.2.5",
         "ng-packagr": "17.2.1",
-        "puppeteer": "^19.8.3",
+        "puppeteer": "^23.1.0",
         "rimraf": "^5.0.5",
         "typescript": "5.3.3"
     }

@@ -15,7 +15,6 @@
     ],
     "homepage": "https://www.vendure.io/",
     "funding": "https://github.com/sponsors/michaelbromley",
-    "private": false,
     "license": "GPL-3.0-or-later",
     "type": "commonjs",
     "scripts": {

@@ -1847,6 +1847,7 @@ export type MutationRequestUpdateCustomerEmailAddressArgs = {
 export type MutationResetPasswordArgs = {
     password: Scalars['String']['input'];
     token: Scalars['String']['input'];
+    lockout: Scalars['Boolean']['input'];
 };
 
 export type MutationSetCustomerForOrderArgs = {

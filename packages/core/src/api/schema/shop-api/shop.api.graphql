@@ -144,7 +144,7 @@ type Mutation {
     "Requests a password reset email to be sent"
     requestPasswordReset(emailAddress: String!): RequestPasswordResetResult
     "Resets a Customer's password based on the provided token"
-    resetPassword(token: String!, password: String!): ResetPasswordResult!
+    resetPassword(token: String!, password: String!, lockout: Boolean!): ResetPasswordResult!
 }
 
 # Populated at run-time
@@ -203,7 +203,7 @@ input ProductListOptions
 input ProductVariantListOptions
 
 union AddPaymentToOrderResult =
-      Order
+    | Order
     | OrderPaymentStateError
     | IneligiblePaymentMethodError
     | PaymentFailedError
@@ -211,38 +211,51 @@ union AddPaymentToOrderResult =
     | OrderStateTransitionError
     | NoActiveOrderError
 union TransitionOrderToStateResult = Order | OrderStateTransitionError
-union SetCustomerForOrderResult = Order | AlreadyLoggedInError | EmailAddressConflictError | NoActiveOrderError | GuestCheckoutError
-union RegisterCustomerAccountResult = Success | MissingPasswordError | PasswordValidationError | NativeAuthStrategyError
+union SetCustomerForOrderResult =
+    | Order
+    | AlreadyLoggedInError
+    | EmailAddressConflictError
+    | NoActiveOrderError
+    | GuestCheckoutError
+union RegisterCustomerAccountResult =
+    | Success
+    | MissingPasswordError
+    | PasswordValidationError
+    | NativeAuthStrategyError
 union RefreshCustomerVerificationResult = Success | NativeAuthStrategyError
 union VerifyCustomerAccountResult =
-      CurrentUser
+    | CurrentUser
     | VerificationTokenInvalidError
     | VerificationTokenExpiredError
     | MissingPasswordError
     | PasswordValidationError
     | PasswordAlreadySetError
     | NativeAuthStrategyError
-union UpdateCustomerPasswordResult = Success | InvalidCredentialsError | PasswordValidationError | NativeAuthStrategyError
+union UpdateCustomerPasswordResult =
+    | Success
+    | InvalidCredentialsError
+    | PasswordValidationError
+    | NativeAuthStrategyError
 union RequestUpdateCustomerEmailAddressResult =
-      Success
+    | Success
     | InvalidCredentialsError
     | EmailAddressConflictError
     | NativeAuthStrategyError
 union UpdateCustomerEmailAddressResult =
-      Success
+    | Success
     | IdentifierChangeTokenInvalidError
     | IdentifierChangeTokenExpiredError
     | NativeAuthStrategyError
 union RequestPasswordResetResult = Success | NativeAuthStrategyError
 union ResetPasswordResult =
-      CurrentUser
+    | CurrentUser
     | PasswordResetTokenInvalidError
     | PasswordResetTokenExpiredError
     | PasswordValidationError
     | NativeAuthStrategyError
     | NotVerifiedError
 union NativeAuthenticationResult =
-      CurrentUser
+    | CurrentUser
     | InvalidCredentialsError
     | NotVerifiedError
     | NativeAuthStrategyError

@@ -388,3 +388,8 @@ Network Trash Folder
 Temporary Items
 .apdisk
 __admin-ui/
+
+# Deps
+.yarn/cache
+.yarn/*.gz
+.yarn/unplugged

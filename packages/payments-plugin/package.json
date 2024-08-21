@@ -7,7 +7,6 @@
     "files": [
         "package/**/*"
     ],
-    "private": false,
     "scripts": {
         "watch": "tsc -p ./tsconfig.build.json --watch",
         "build": "rimraf package && tsc -p ./tsconfig.build.json",
@@ -50,7 +49,7 @@
         "@vendure/core": "^3.0.0",
         "@vendure/testing": "^3.0.0",
         "braintree": "^3.22.0",
-        "localtunnel": "2.0.2",
+        "localtunnel": "^1.8.3",
         "nock": "^13.1.4",
         "rimraf": "^5.0.5",
         "stripe": "^13.3.0",
