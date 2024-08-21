@@ -390,6 +390,7 @@ Temporary Items
 __admin-ui/
 
 # Deps
+!.yarn/releases
 .yarn/cache
 .yarn/*.gz
 .yarn/unplugged
