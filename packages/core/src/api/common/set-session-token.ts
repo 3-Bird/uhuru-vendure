@@ -27,6 +27,11 @@ export function setSessionToken(options: {
             if (rememberMe) {
                 req.sessionOptions.maxAge = ms('1y');
             }
+
+            if (!sessionToken.length) {
+                req.sessionOptions.expires = new Date(0);
+            }
+
             req.session.token = sessionToken;
         }
     }
