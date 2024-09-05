@@ -5,13 +5,13 @@
     "license": "GPL-3.0-or-later",
     "private": true,
     "scripts": {
-        "populate": "node -r ts-node/register -r dotenv/config populate-dev-server.ts",
-        "run:server": "node -r ts-node/register -r dotenv/config index.ts",
-        "run:worker": "node -r ts-node/register -r dotenv/config index-worker.ts",
+        "populate": "tsx -r dotenv/config populate-dev-server.ts",
+        "run:server": "tsx -r dotenv/config index.ts",
+        "run:worker": "tsx -r dotenv/config index-worker.ts",
         "start": "concurrently npm:run*",
-        "load-test:1k": "node -r ts-node/register load-testing/run-load-test.ts 1000",
-        "load-test:10k": "node -r ts-node/register load-testing/run-load-test.ts 10000",
-        "load-test:100k": "node -r ts-node/register load-testing/run-load-test.ts 100000"
+        "load-test:1k": "tsx load-testing/run-load-test.ts 1000",
+        "load-test:10k": "tsx load-testing/run-load-test.ts 10000",
+        "load-test:100k": "tsx load-testing/run-load-test.ts 100000"
     },
     "dependencies": {
         "@nestjs/axios": "^3.0.2",
@@ -21,6 +21,7 @@
         "@vendure/core": "^3.0.1",
         "@vendure/elasticsearch-plugin": "^3.0.1",
         "@vendure/email-plugin": "^3.0.1",
+        "tsx": "^4.19.0",
         "typescript": "5.3.3"
     },
     "devDependencies": {

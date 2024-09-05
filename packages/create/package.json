@@ -9,8 +9,8 @@
         "assets/**/*"
     ],
     "scripts": {
-        "dev": "ts-node src/create-vendure-app.ts",
-        "copy-assets": "rimraf assets && ts-node ./build.ts",
+        "dev": "tsx src/create-vendure-app.ts",
+        "copy-assets": "rimraf assets && tsx ./build.ts",
         "build": "npm run copy-assets && rimraf lib && tsc -p ./tsconfig.build.json",
         "watch": "npm run copy-assets && rimraf lib && tsc -p ./tsconfig.build.json -w",
         "lint": "eslint --fix ."
@@ -28,6 +28,7 @@
         "@vendure/core": "^3.0.1",
         "rimraf": "^5.0.5",
         "ts-node": "^10.9.2",
+        "tsx": "^4.19.0",
         "typescript": "5.3.3"
     },
     "dependencies": {

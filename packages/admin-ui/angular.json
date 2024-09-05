@@ -57,12 +57,16 @@
               "@vendure/common/lib/pick",
               "@messageformat/core"
             ],
-            "vendorChunk": true,
-            "extractLicenses": false,
-            "buildOptimizer": false,
-            "sourceMap": true,
             "optimization": false,
-            "namedChunks": true
+            "outputHashing": "none",
+            "sourceMap": false,
+            "namedChunks": false,
+            "aot": true,
+            "extractLicenses": false,
+            "statsJson": false,
+            "progress": false,
+            "vendorChunk": true,
+            "buildOptimizer": false
           },
           "configurations": {
             "production": {
