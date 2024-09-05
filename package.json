@@ -19,7 +19,7 @@
     "test": "lerna run test --stream --no-bail",
     "e2e": "lerna run e2e --stream --no-bail",
     "build": "lerna run build",
-    "build:uhuru": "lerna run build --ignore @vendure/admin-ui --ignore @vendure/admin-ui-plugin",
+    "build:uhuru": "lerna run build --ignore @vendure/admin-ui",
     "check-imports": "tsx scripts/check-imports.ts",
     "check-core-type-defs": "tsx scripts/check-core-type-defs.ts",
     "check-angular-versions": "tsx scripts/check-angular-versions.ts",
