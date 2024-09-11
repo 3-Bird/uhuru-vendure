@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConfigModule = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
-const shared_utils_1 = require("@vendure/common/lib/shared-utils");
 const injector_1 = require("../common/injector");
 const config_helpers_1 = require("./config-helpers");
 const config_service_1 = require("./config.service");
@@ -73,10 +72,11 @@ let ConfigModule = class ConfigModule {
         const { customFulfillmentProcess, process: fulfillmentProcess, shippingLineAssignmentStrategy, } = this.configService.shippingOptions;
         const { customPaymentProcess, process: paymentProcess } = this.configService.paymentOptions;
         const { entityIdStrategy: entityIdStrategyDeprecated } = this.configService;
-        const { entityIdStrategy } = this.configService.entityOptions;
+        const { entityIdStrategy: entityIdStrategyCurrent } = this.configService.entityOptions;
         const { healthChecks, errorHandlers } = this.configService.systemOptions;
         const { assetImportStrategy } = this.configService.importExportOptions;
         const { refundProcess: refundProcess } = this.configService.paymentOptions;
+        const entityIdStrategy = entityIdStrategyCurrent !== null && entityIdStrategyCurrent !== void 0 ? entityIdStrategyCurrent : entityIdStrategyDeprecated;
         return [
             ...adminAuthenticationStrategy,
             ...shopAuthenticationStrategy,
@@ -94,8 +94,7 @@ let ConfigModule = class ConfigModule {
             checkoutMergeStrategy,
             orderCodeStrategy,
             orderByCodeAccessStrategy,
-            entityIdStrategyDeprecated,
-            ...[entityIdStrategy].filter(shared_utils_1.notNullOrUndefined),
+            entityIdStrategy,
             productVariantPriceCalculationStrategy,
             productVariantPriceUpdateStrategy,
             orderItemPriceCalculationStrategy,

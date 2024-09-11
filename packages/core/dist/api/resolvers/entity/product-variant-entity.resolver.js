@@ -19,9 +19,9 @@ const request_context_cache_service_1 = require("../../../cache/request-context-
 const utils_1 = require("../../../common/utils");
 const product_variant_entity_1 = require("../../../entity/product-variant/product-variant.entity");
 const locale_string_hydrator_1 = require("../../../service/helpers/locale-string-hydrator/locale-string-hydrator");
-const stock_level_service_1 = require("../../../service/services/stock-level.service");
 const asset_service_1 = require("../../../service/services/asset.service");
 const product_variant_service_1 = require("../../../service/services/product-variant.service");
+const stock_level_service_1 = require("../../../service/services/stock-level.service");
 const stock_movement_service_1 = require("../../../service/services/stock-movement.service");
 const request_context_1 = require("../../common/request-context");
 const api_decorator_1 = require("../../decorators/api.decorator");
@@ -62,7 +62,7 @@ let ProductVariantEntityResolver = class ProductVariantEntityResolver {
         return this.assetService.getEntityAssets(ctx, productVariant);
     }
     async featuredAsset(ctx, productVariant) {
-        if (productVariant.featuredAsset) {
+        if (productVariant.featuredAsset !== undefined) {
             return productVariant.featuredAsset;
         }
         return this.assetService.getFeaturedAsset(ctx, productVariant);

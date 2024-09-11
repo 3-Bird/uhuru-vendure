@@ -1,4 +1,4 @@
-import { DeepPartial } from '@vendure/common/lib/shared-types';
+import { DeepPartial, ID } from '@vendure/common/lib/shared-types';
 import { ChannelAware, SoftDeletable } from '../../common/types/common-types';
 import { LocaleString, Translatable, Translation } from '../../common/types/locale-types';
 import { HasCustomFields } from '../../config/custom-field/custom-field-types';
@@ -28,6 +28,7 @@ export declare class Product
     description: LocaleString;
     enabled: boolean;
     featuredAsset: Asset;
+    featuredAssetId: ID;
     assets: ProductAsset[];
     translations: Array<Translation<Product>>;
     variants: ProductVariant[];

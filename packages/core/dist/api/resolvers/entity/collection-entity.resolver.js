@@ -77,7 +77,7 @@ let CollectionEntityResolver = class CollectionEntityResolver {
         return children.filter(c => (apiType === 'shop' ? !c.isPrivate : true));
     }
     async featuredAsset(ctx, collection) {
-        if (collection.featuredAsset) {
+        if (collection.featuredAsset !== undefined) {
             return collection.featuredAsset;
         }
         return this.assetService.getFeaturedAsset(ctx, collection);

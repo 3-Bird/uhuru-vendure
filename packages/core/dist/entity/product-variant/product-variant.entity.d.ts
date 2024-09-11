@@ -55,8 +55,10 @@ export declare class ProductVariant
      */
     taxRateApplied: TaxRate;
     featuredAsset: Asset;
+    featuredAssetId: ID;
     assets: ProductVariantAsset[];
     taxCategory: TaxCategory;
+    taxCategoryId: ID;
     productVariantPrices: ProductVariantPrice[];
     translations: Array<Translation<ProductVariant>>;
     product: Product;

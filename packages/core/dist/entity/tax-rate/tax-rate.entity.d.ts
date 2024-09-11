@@ -1,5 +1,5 @@
 import { TaxLine } from '@vendure/common/lib/generated-types';
-import { DeepPartial } from '@vendure/common/lib/shared-types';
+import { DeepPartial, ID } from '@vendure/common/lib/shared-types';
 import { HasCustomFields } from '../../config/custom-field/custom-field-types';
 import { VendureEntity } from '../base/base.entity';
 import { CustomTaxRateFields } from '../custom-entity-fields';
@@ -22,7 +22,9 @@ export declare class TaxRate extends VendureEntity implements HasCustomFields {
     enabled: boolean;
     value: number;
     category: TaxCategory;
+    categoryId: ID;
     zone: Zone;
+    zoneId: ID;
     customerGroup?: CustomerGroup;
     customFields: CustomTaxRateFields;
     /**
@@ -42,5 +44,6 @@ export declare class TaxRate extends VendureEntity implements HasCustomFields {
      */
     grossPriceOf(netPrice: number): number;
     apply(price: number): TaxLine;
-    test(zone: Zone, taxCategory: TaxCategory): boolean;
+    test(zone: Zone | ID, taxCategory: TaxCategory | ID): boolean;
+    private isId;
 }

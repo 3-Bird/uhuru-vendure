@@ -16,6 +16,7 @@ const utils_1 = require("../../common/utils");
 const base_entity_1 = require("../base/base.entity");
 const custom_entity_fields_1 = require("../custom-entity-fields");
 const customer_group_entity_1 = require("../customer-group/customer-group.entity");
+const entity_id_decorator_1 = require("../entity-id.decorator");
 const tax_category_entity_1 = require("../tax-category/tax-category.entity");
 const value_transformers_1 = require("../value-transformers");
 const zone_entity_1 = require("../zone/zone.entity");
@@ -64,7 +65,12 @@ let TaxRate = class TaxRate extends base_entity_1.VendureEntity {
         };
     }
     test(zone, taxCategory) {
-        return (0, utils_1.idsAreEqual)(taxCategory.id, this.category.id) && (0, utils_1.idsAreEqual)(zone.id, this.zone.id);
+        const taxCategoryId = this.isId(taxCategory) ? taxCategory : taxCategory.id;
+        const zoneId = this.isId(zone) ? zone : zone.id;
+        return (0, utils_1.idsAreEqual)(taxCategoryId, this.categoryId) && (0, utils_1.idsAreEqual)(zoneId, this.zoneId);
+    }
+    isId(entityOrId) {
+        return typeof entityOrId === 'string' || typeof entityOrId === 'number';
     }
 };
 exports.TaxRate = TaxRate;
@@ -86,10 +92,18 @@ __decorate([
     __metadata("design:type", tax_category_entity_1.TaxCategory)
 ], TaxRate.prototype, "category", void 0);
 __decorate([
+    (0, entity_id_decorator_1.EntityId)({ nullable: true }),
+    __metadata("design:type", Object)
+], TaxRate.prototype, "categoryId", void 0);
+__decorate([
     (0, typeorm_1.Index)(),
     (0, typeorm_1.ManyToOne)(type => zone_entity_1.Zone, zone => zone.taxRates),
     __metadata("design:type", zone_entity_1.Zone)
 ], TaxRate.prototype, "zone", void 0);
+__decorate([
+    (0, entity_id_decorator_1.EntityId)({ nullable: true }),
+    __metadata("design:type", Object)
+], TaxRate.prototype, "zoneId", void 0);
 __decorate([
     (0, typeorm_1.Index)(),
     (0, typeorm_1.ManyToOne)(type => customer_group_entity_1.CustomerGroup, customerGroup => customerGroup.taxRates, { nullable: true }),

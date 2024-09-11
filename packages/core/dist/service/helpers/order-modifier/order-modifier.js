@@ -13,6 +13,7 @@ exports.OrderModifier = void 0;
 const common_1 = require("@nestjs/common");
 const generated_types_1 = require("@vendure/common/lib/generated-types");
 const shared_utils_1 = require("@vendure/common/lib/shared-utils");
+const typeorm_1 = require("typeorm");
 const error_result_1 = require("../../../common/error/error-result");
 const errors_1 = require("../../../common/error/errors");
 const generated_graphql_admin_errors_1 = require("../../../common/error/generated-graphql-admin-errors");
@@ -26,6 +27,7 @@ const fulfillment_line_entity_1 = require("../../../entity/order-line-reference/
 const order_modification_line_entity_1 = require("../../../entity/order-line-reference/order-modification-line.entity");
 const order_modification_entity_1 = require("../../../entity/order-modification/order-modification.entity");
 const payment_entity_1 = require("../../../entity/payment/payment.entity");
+const product_variant_entity_1 = require("../../../entity/product-variant/product-variant.entity");
 const shipping_line_entity_1 = require("../../../entity/shipping-line/shipping-line.entity");
 const allocation_entity_1 = require("../../../entity/stock-movement/allocation.entity");
 const cancellation_entity_1 = require("../../../entity/stock-movement/cancellation.entity");
@@ -103,7 +105,7 @@ let OrderModifier = class OrderModifier {
      */
     async getExistingOrderLine(ctx, order, productVariantId, customFields) {
         for (const line of order.lines) {
-            const match = (0, utils_1.idsAreEqual)(line.productVariant.id, productVariantId) &&
+            const match = (0, utils_1.idsAreEqual)(line.productVariantId, productVariantId) &&
                 (await this.customFieldsAreEqual(ctx, line, customFields, line.customFields));
             if (match) {
                 return line;
@@ -121,11 +123,12 @@ let OrderModifier = class OrderModifier {
         if (existingOrderLine) {
             return existingOrderLine;
         }
-        const productVariant = await this.getProductVariantOrThrow(ctx, productVariantId);
+        const productVariant = await this.getProductVariantOrThrow(ctx, productVariantId, order);
+        const featuredAssetId = (_a = productVariant.featuredAssetId) !== null && _a !== void 0 ? _a : productVariant.featuredAssetId;
         const orderLine = await this.connection.getRepository(ctx, order_line_entity_1.OrderLine).save(new order_line_entity_1.OrderLine({
             productVariant,
             taxCategory: productVariant.taxCategory,
-            featuredAsset: (_a = productVariant.featuredAsset) !== null && _a !== void 0 ? _a : productVariant.product.featuredAsset,
+            featuredAsset: featuredAssetId ? { id: featuredAssetId } : undefined,
             listPrice: productVariant.listPrice,
             listPriceIncludesTax: productVariant.listPriceIncludesTax,
             adjustments: [],
@@ -144,19 +147,15 @@ let OrderModifier = class OrderModifier {
                 .set(orderLine.sellerChannel);
         }
         await this.customFieldRelationService.updateRelations(ctx, order_line_entity_1.OrderLine, { customFields }, orderLine);
-        const lineWithRelations = await this.connection.getEntityOrThrow(ctx, order_line_entity_1.OrderLine, orderLine.id, {
-            relations: [
-                'taxCategory',
-                'productVariant',
-                'productVariant.productVariantPrices',
-                'productVariant.taxCategory',
-            ],
-        });
-        lineWithRelations.productVariant = this.translator.translate(await this.productVariantService.applyChannelPriceAndTax(lineWithRelations.productVariant, ctx, order), ctx);
-        order.lines.push(lineWithRelations);
-        await this.connection.getRepository(ctx, order_entity_1.Order).save(order, { reload: false });
-        await this.eventBus.publish(new order_line_event_1.OrderLineEvent(ctx, order, lineWithRelations, 'created'));
-        return lineWithRelations;
+        order.lines.push(orderLine);
+        await this.connection
+            .getRepository(ctx, order_entity_1.Order)
+            .createQueryBuilder()
+            .relation('lines')
+            .of(order)
+            .add(orderLine);
+        await this.eventBus.publish(new order_line_event_1.OrderLineEvent(ctx, order, orderLine, 'created'));
+        return orderLine;
     }
     /**
      * @description
@@ -740,12 +739,18 @@ let OrderModifier = class OrderModifier {
             ? !!(existingCustomFields === null || existingCustomFields === void 0 ? void 0 : existingCustomFields[key])
             : existingCustomFields === null || existingCustomFields === void 0 ? void 0 : existingCustomFields[key];
     }
-    async getProductVariantOrThrow(ctx, productVariantId) {
-        const productVariant = await this.productVariantService.findOne(ctx, productVariantId);
-        if (!productVariant) {
+    async getProductVariantOrThrow(ctx, productVariantId, order) {
+        const variant = await this.connection.findOneInChannel(ctx, product_variant_entity_1.ProductVariant, productVariantId, ctx.channelId, {
+            relations: ['product', 'productVariantPrices', 'taxCategory'],
+            loadEagerRelations: false,
+            where: { deletedAt: (0, typeorm_1.IsNull)() },
+        });
+        if (variant) {
+            return await this.productVariantService.applyChannelPriceAndTax(variant, ctx, order);
+        }
+        else {
             throw new errors_1.EntityNotFoundError('ProductVariant', productVariantId);
         }
-        return productVariant;
     }
 };
 exports.OrderModifier = OrderModifier;

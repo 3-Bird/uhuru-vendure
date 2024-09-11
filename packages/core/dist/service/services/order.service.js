@@ -368,7 +368,7 @@ let OrderService = class OrderService {
      * @since 2.2.0
      */
     async updateOrderCustomer(ctx, { customerId, orderId, note }) {
-        const order = await this.getOrderOrThrow(ctx, orderId);
+        const order = await this.getOrderOrThrow(ctx, orderId, ['channels', 'customer']);
         const currentCustomer = order.customer;
         if ((currentCustomer === null || currentCustomer === void 0 ? void 0 : currentCustomer.id) === customerId) {
             // No change in customer, so just return the order as-is
@@ -408,7 +408,7 @@ let OrderService = class OrderService {
      * Adds an item to the Order, either creating a new OrderLine or
      * incrementing an existing one.
      */
-    async addItemToOrder(ctx, orderId, productVariantId, quantity, customFields) {
+    async addItemToOrder(ctx, orderId, productVariantId, quantity, customFields, relations) {
         const order = await this.getOrderOrThrow(ctx, orderId);
         const existingOrderLine = await this.orderModifier.getExistingOrderLine(ctx, order, productVariantId, customFields);
         const validationError = this.assertQuantityIsPositive(quantity) ||
@@ -424,6 +424,7 @@ let OrderService = class OrderService {
                 enabled: true,
                 deletedAt: (0, typeorm_1.IsNull)(),
             },
+            loadEagerRelations: false,
         });
         if (variant.product.enabled === false) {
             throw new errors_1.EntityNotFoundError('ProductVariant', productVariantId);
@@ -443,7 +444,7 @@ let OrderService = class OrderService {
             await this.orderModifier.updateOrderLineQuantity(ctx, orderLine, correctedQuantity, order);
         }
         const quantityWasAdjustedDown = correctedQuantity < quantity;
-        const updatedOrder = await this.applyPriceAdjustments(ctx, order, [orderLine]);
+        const updatedOrder = await this.applyPriceAdjustments(ctx, order, [orderLine], relations);
         if (quantityWasAdjustedDown) {
             return new generated_graphql_shop_errors_1.InsufficientStockError({ quantityAvailable: correctedQuantity, order: updatedOrder });
         }
@@ -455,7 +456,7 @@ let OrderService = class OrderService {
      * @description
      * Adjusts the quantity and/or custom field values of an existing OrderLine.
      */
-    async adjustOrderLine(ctx, orderId, orderLineId, quantity, customFields) {
+    async adjustOrderLine(ctx, orderId, orderLineId, quantity, customFields, relations) {
         const order = await this.getOrderOrThrow(ctx, orderId);
         const orderLine = this.getOrderLineOrThrow(order, orderLineId);
         const validationError = this.assertAddingItemsState(order) ||
@@ -484,7 +485,7 @@ let OrderService = class OrderService {
             await this.orderModifier.updateOrderLineQuantity(ctx, orderLine, correctedQuantity, order);
         }
         const quantityWasAdjustedDown = correctedQuantity < quantity;
-        const updatedOrder = await this.applyPriceAdjustments(ctx, order, updatedOrderLines);
+        const updatedOrder = await this.applyPriceAdjustments(ctx, order, updatedOrderLines, relations);
         if (quantityWasAdjustedDown) {
             return new generated_graphql_shop_errors_1.InsufficientStockError({ quantityAvailable: correctedQuantity, order: updatedOrder });
         }
@@ -1279,8 +1280,15 @@ let OrderService = class OrderService {
         }
         return order;
     }
-    async getOrderOrThrow(ctx, orderId) {
-        const order = await this.findOne(ctx, orderId);
+    async getOrderOrThrow(ctx, orderId, relations) {
+        const order = await this.findOne(ctx, orderId, relations !== null && relations !== void 0 ? relations : [
+            'lines',
+            'lines.productVariant',
+            'lines.productVariant.productVariantPrices',
+            'shippingLines',
+            'surcharges',
+            'customer',
+        ]);
         if (!order) {
             throw new errors_1.EntityNotFoundError('Order', orderId);
         }
@@ -1336,7 +1344,7 @@ let OrderService = class OrderService {
      * Applies promotions, taxes and shipping to the Order. If the `updatedOrderLines` argument is passed in,
      * then all of those OrderLines will have their prices re-calculated using the configured {@link OrderItemPriceCalculationStrategy}.
      */
-    async applyPriceAdjustments(ctx, order, updatedOrderLines) {
+    async applyPriceAdjustments(ctx, order, updatedOrderLines, relations) {
         var _a;
         const promotions = await this.promotionService.getActivePromotionsInChannel(ctx);
         const activePromotionsPre = await this.promotionService.getActivePromotionsOnOrder(ctx, order.id);
@@ -1363,17 +1371,58 @@ let OrderService = class OrderService {
                 updatedOrderLine.listPriceIncludesTax = priceResult.priceIncludesTax;
             }
         }
+        // Get the shipping line IDs before doing the order calculation
+        // step, which can in some cases change the applied shipping lines.
+        const shippingLineIdsPre = order.shippingLines.map(l => l.id);
         const updatedOrder = await this.orderCalculator.applyPriceAdjustments(ctx, order, promotions, updatedOrderLines !== null && updatedOrderLines !== void 0 ? updatedOrderLines : []);
+        const shippingLineIdsPost = updatedOrder.shippingLines.map(l => l.id);
+        await this.applyChangesToShippingLines(ctx, updatedOrder, shippingLineIdsPre, shippingLineIdsPost);
+        // Explicitly omit the shippingAddress and billingAddress properties to avoid
+        // a race condition where changing one or the other in parallel can
+        // overwrite the other's changes. The other omissions prevent the save
+        // function from doing more work than necessary.
         await this.connection
             .getRepository(ctx, order_entity_1.Order)
-            // Explicitly omit the shippingAddress and billingAddress properties to avoid
-            // a race condition where changing one or the other in parallel can
-            // overwrite the other's changes.
-            .save((0, omit_1.omit)(updatedOrder, ['shippingAddress', 'billingAddress']), { reload: false });
+            .save((0, omit_1.omit)(updatedOrder, [
+            'shippingAddress',
+            'billingAddress',
+            'lines',
+            'shippingLines',
+            'aggregateOrder',
+            'sellerOrders',
+            'customer',
+            'modifications',
+        ]), {
+            reload: false,
+        });
         await this.connection.getRepository(ctx, order_line_entity_1.OrderLine).save(updatedOrder.lines, { reload: false });
         await this.connection.getRepository(ctx, shipping_line_entity_1.ShippingLine).save(order.shippingLines, { reload: false });
         await this.promotionService.runPromotionSideEffects(ctx, order, activePromotionsPre);
-        return (0, utils_1.assertFound)(this.findOne(ctx, order.id));
+        return (0, utils_1.assertFound)(this.findOne(ctx, order.id, relations));
+    }
+    /**
+     * Applies changes to the shipping lines of an order, adding or removing the relations
+     * in the database.
+     */
+    async applyChangesToShippingLines(ctx, order, shippingLineIdsPre, shippingLineIdsPost) {
+        const removedShippingLineIds = shippingLineIdsPre.filter(id => !shippingLineIdsPost.includes(id));
+        const newlyAddedShippingLineIds = shippingLineIdsPost.filter(id => !shippingLineIdsPre.includes(id));
+        for (const idToRemove of removedShippingLineIds) {
+            await this.connection
+                .getRepository(ctx, order_entity_1.Order)
+                .createQueryBuilder()
+                .relation('shippingLines')
+                .of(order)
+                .remove(idToRemove);
+        }
+        for (const idToAdd of newlyAddedShippingLineIds) {
+            await this.connection
+                .getRepository(ctx, order_entity_1.Order)
+                .createQueryBuilder()
+                .relation('shippingLines')
+                .of(order)
+                .add(idToAdd);
+        }
     }
 };
 exports.OrderService = OrderService;

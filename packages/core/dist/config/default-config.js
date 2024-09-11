@@ -78,6 +78,7 @@ exports.defaultConfig = {
         introspection: true,
         apolloServerPlugins: [],
     },
+    entityIdStrategy: new auto_increment_id_strategy_1.AutoIncrementIdStrategy(),
     authOptions: {
         disableAuth: false,
         tokenMethod: 'cookie',
@@ -112,7 +113,6 @@ exports.defaultConfig = {
         stockDisplayStrategy: new default_stock_display_strategy_1.DefaultStockDisplayStrategy(),
         stockLocationStrategy: new default_stock_location_strategy_1.DefaultStockLocationStrategy(),
     },
-    entityIdStrategy: new auto_increment_id_strategy_1.AutoIncrementIdStrategy(),
     assetOptions: {
         assetNamingStrategy: new default_asset_naming_strategy_1.DefaultAssetNamingStrategy(),
         assetStorageStrategy: new no_asset_storage_strategy_1.NoAssetStorageStrategy(),
@@ -125,6 +125,7 @@ exports.defaultConfig = {
         type: 'mysql',
     },
     entityOptions: {
+        entityIdStrategy: new auto_increment_id_strategy_1.AutoIncrementIdStrategy(),
         moneyStrategy: new default_money_strategy_1.DefaultMoneyStrategy(),
         entityDuplicators: index_1.defaultEntityDuplicators,
         channelCacheTtl: 30000,

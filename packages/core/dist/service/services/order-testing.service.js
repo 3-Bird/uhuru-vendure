@@ -111,6 +111,7 @@ let OrderTestingService = class OrderTestingService {
                 taxLines: [],
                 quantity: line.quantity,
                 taxCategory: productVariant.taxCategory,
+                taxCategoryId: productVariant.taxCategoryId,
             });
             mockOrder.lines.push(orderLine);
             const { price, priceIncludesTax } = await orderItemPriceCalculationStrategy.calculateUnitPrice(ctx, productVariant, orderLine.customFields || {}, mockOrder, orderLine.quantity);

@@ -65,7 +65,7 @@ let OrderCalculator = class OrderCalculator {
             taxZoneChanged = true;
         }
         for (const updatedOrderLine of updatedOrderLines) {
-            await this.applyTaxesToOrderLine(ctx, order, updatedOrderLine, activeTaxZone, this.createTaxRateGetter(ctx, activeTaxZone));
+            await this.applyTaxesToOrderLine(ctx, order, updatedOrderLine, this.createTaxRateGetter(ctx, activeTaxZone));
         }
         this.calculateOrderTotals(order);
         if (order.lines.length) {
@@ -97,7 +97,7 @@ let OrderCalculator = class OrderCalculator {
     async applyTaxes(ctx, order, activeZone) {
         const getTaxRate = this.createTaxRateGetter(ctx, activeZone);
         for (const line of order.lines) {
-            await this.applyTaxesToOrderLine(ctx, order, line, activeZone, getTaxRate);
+            await this.applyTaxesToOrderLine(ctx, order, line, getTaxRate);
         }
         this.calculateOrderTotals(order);
     }
@@ -105,8 +105,8 @@ let OrderCalculator = class OrderCalculator {
      * @description
      * Applies the correct TaxRate to an OrderLine
      */
-    async applyTaxesToOrderLine(ctx, order, line, activeZone, getTaxRate) {
-        const applicableTaxRate = await getTaxRate(line.taxCategory);
+    async applyTaxesToOrderLine(ctx, order, line, getTaxRate) {
+        const applicableTaxRate = await getTaxRate(line.taxCategoryId);
         const { taxLineCalculationStrategy } = this.configService.taxOptions;
         line.taxLines = await taxLineCalculationStrategy.calculate({
             ctx,
@@ -122,13 +122,13 @@ let OrderCalculator = class OrderCalculator {
      */
     createTaxRateGetter(ctx, activeZone) {
         const taxRateCache = new Map();
-        return async (taxCategory) => {
-            const cached = taxRateCache.get(taxCategory);
+        return async (taxCategoryId) => {
+            const cached = taxRateCache.get(taxCategoryId);
             if (cached) {
                 return cached;
             }
-            const rate = await this.taxRateService.getApplicableTaxRate(ctx, activeZone, taxCategory);
-            taxRateCache.set(taxCategory, rate);
+            const rate = await this.taxRateService.getApplicableTaxRate(ctx, activeZone, taxCategoryId);
+            taxRateCache.set(taxCategoryId, rate);
             return rate;
         };
     }

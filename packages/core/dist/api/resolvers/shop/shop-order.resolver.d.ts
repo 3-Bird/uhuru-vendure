@@ -95,10 +95,12 @@ export declare class ShopOrderResolver {
     addItemToOrder(
         ctx: RequestContext,
         args: MutationAddItemToOrderArgs & ActiveOrderArgs,
+        relations: RelationPaths<Order>,
     ): Promise<ErrorResultUnion<UpdateOrderItemsResult, Order>>;
     adjustOrderLine(
         ctx: RequestContext,
         args: MutationAdjustOrderLineArgs & ActiveOrderArgs,
+        relations: RelationPaths<Order>,
     ): Promise<ErrorResultUnion<UpdateOrderItemsResult, Order>>;
     removeOrderLine(
         ctx: RequestContext,

@@ -59,7 +59,11 @@ export declare class TaxRateService {
      * Returns the applicable TaxRate based on the specified Zone and TaxCategory. Used when calculating Order
      * prices.
      */
-    getApplicableTaxRate(ctx: RequestContext, zone: Zone, taxCategory: TaxCategory): Promise<TaxRate>;
+    getApplicableTaxRate(
+        ctx: RequestContext,
+        zone: Zone | ID,
+        taxCategory: TaxCategory | ID,
+    ): Promise<TaxRate>;
     private getActiveTaxRates;
     private updateActiveTaxRates;
     private findActiveTaxRates;

@@ -93,6 +93,10 @@ __decorate([
     __metadata("design:type", asset_entity_1.Asset)
 ], ProductVariant.prototype, "featuredAsset", void 0);
 __decorate([
+    (0, entity_id_decorator_1.EntityId)({ nullable: true }),
+    __metadata("design:type", Object)
+], ProductVariant.prototype, "featuredAssetId", void 0);
+__decorate([
     (0, typeorm_1.OneToMany)(type => product_variant_asset_entity_1.ProductVariantAsset, productVariantAsset => productVariantAsset.productVariant, {
         onDelete: 'SET NULL',
     }),
@@ -103,6 +107,10 @@ __decorate([
     (0, typeorm_1.ManyToOne)(type => tax_category_entity_1.TaxCategory, taxCategory => taxCategory.productVariants),
     __metadata("design:type", tax_category_entity_1.TaxCategory)
 ], ProductVariant.prototype, "taxCategory", void 0);
+__decorate([
+    (0, entity_id_decorator_1.EntityId)({ nullable: true }),
+    __metadata("design:type", Object)
+], ProductVariant.prototype, "taxCategoryId", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(type => product_variant_price_entity_1.ProductVariantPrice, price => price.variant, { eager: true }),
     __metadata("design:type", Array)

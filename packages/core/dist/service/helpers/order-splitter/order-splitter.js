@@ -91,7 +91,9 @@ let OrderSplitter = class OrderSplitter {
         const newLine = await this.connection.getRepository(ctx, order_line_entity_1.OrderLine).save(new order_line_entity_1.OrderLine(Object.assign({}, (0, pick_1.pick)(line, [
             'quantity',
             'productVariant',
+            'productVariantId',
             'taxCategory',
+            'taxCategoryId',
             'featuredAsset',
             'shippingLine',
             'shippingLineId',

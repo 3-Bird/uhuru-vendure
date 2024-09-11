@@ -33,7 +33,7 @@ let OrderLineEntityResolver = class OrderLineEntityResolver {
         return this.productVariantService.getVariantByOrderLineId(ctx, orderLine.id);
     }
     async featuredAsset(ctx, orderLine) {
-        if (orderLine.featuredAsset) {
+        if (orderLine.featuredAsset !== undefined) {
             return orderLine.featuredAsset;
         }
         else {

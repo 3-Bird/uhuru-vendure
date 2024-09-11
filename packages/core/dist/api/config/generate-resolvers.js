@@ -193,12 +193,21 @@ function generateCustomFieldRelationResolvers(configService, customFieldRelation
                 shopResolvers[customFieldTypeName] = Object.assign(Object.assign({}, shopResolvers[customFieldTypeName]), { [fieldDef.name]: resolver });
             }
         }
+        const allCustomFieldsAreNonPublic = customFields.length && customFields.every(f => f.public === false || f.internal === true);
+        if (allCustomFieldsAreNonPublic) {
+            // When an entity has only non-public custom fields, the GraphQL type used for the
+            // customFields field is `JSON`. This type will simply return the full object, which
+            // will cause a leak of private data unless we force a `null` return value in the case
+            // that there are no public fields.
+            // See https://github.com/vendure-ecommerce/vendure/issues/3049
+            shopResolvers[entityName] = { customFields: () => null };
+        }
     }
     return { adminResolvers, shopResolvers };
 }
 function getCustomScalars(configService, apiType) {
     return (0, plugin_metadata_1.getPluginAPIExtensions)(configService.plugins, apiType)
-        .map(e => { var _a; return (typeof e.scalars === 'function' ? e.scalars() : (_a = e.scalars) !== null && _a !== void 0 ? _a : {}); })
+        .map(e => { var _a; return (typeof e.scalars === 'function' ? e.scalars() : ((_a = e.scalars) !== null && _a !== void 0 ? _a : {})); })
         .reduce((all, scalarMap) => (Object.assign(Object.assign({}, all), scalarMap)), {});
 }
 function isRelationalType(input) {

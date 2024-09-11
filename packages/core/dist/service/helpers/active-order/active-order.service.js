@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ActiveOrderService = void 0;
 const common_1 = require("@nestjs/common");
 const errors_1 = require("../../../common/error/errors");
+const utils_1 = require("../../../common/utils");
 const config_service_1 = require("../../../config/config.service");
 const transactional_connection_1 = require("../../../connection/transactional-connection");
 const order_entity_1 = require("../../../entity/order/order.entity");
@@ -91,7 +92,10 @@ let ActiveOrderService = class ActiveOrderService {
                 throw new errors_1.UserInputError('error.order-could-not-be-determined-or-created');
             }
             if (order && ctx.session) {
-                await this.sessionService.setActiveOrder(ctx, ctx.session, order);
+                const orderAlreadyAssignedToSession = ctx.session.activeOrderId && (0, utils_1.idsAreEqual)(ctx.session.activeOrderId, order.id);
+                if (!orderAlreadyAssignedToSession) {
+                    await this.sessionService.setActiveOrder(ctx, ctx.session, order);
+                }
             }
         }
         return order || undefined;

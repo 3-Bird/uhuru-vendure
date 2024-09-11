@@ -42,6 +42,7 @@ export declare class OrderLine extends VendureEntity implements HasCustomFields 
     productVariant: ProductVariant;
     productVariantId: ID;
     taxCategory: TaxCategory;
+    taxCategoryId: ID;
     featuredAsset: Asset;
     order: Order;
     linesReferences: OrderLineReference[];

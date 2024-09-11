@@ -15,6 +15,7 @@ const asset_entity_1 = require("../asset/asset.entity");
 const base_entity_1 = require("../base/base.entity");
 const channel_entity_1 = require("../channel/channel.entity");
 const custom_entity_fields_1 = require("../custom-entity-fields");
+const entity_id_decorator_1 = require("../entity-id.decorator");
 const facet_value_entity_1 = require("../facet-value/facet-value.entity");
 const product_option_group_entity_1 = require("../product-option-group/product-option-group.entity");
 const product_variant_entity_1 = require("../product-variant/product-variant.entity");
@@ -46,6 +47,10 @@ __decorate([
     (0, typeorm_1.ManyToOne)(type => asset_entity_1.Asset, asset => asset.featuredInProducts, { onDelete: 'SET NULL' }),
     __metadata("design:type", asset_entity_1.Asset)
 ], Product.prototype, "featuredAsset", void 0);
+__decorate([
+    (0, entity_id_decorator_1.EntityId)({ nullable: true }),
+    __metadata("design:type", Object)
+], Product.prototype, "featuredAssetId", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(type => product_asset_entity_1.ProductAsset, productAsset => productAsset.product),
     __metadata("design:type", Array)

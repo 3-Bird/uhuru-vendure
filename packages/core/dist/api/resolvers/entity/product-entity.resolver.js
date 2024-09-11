@@ -85,7 +85,7 @@ let ProductEntityResolver = class ProductEntityResolver {
         }
     }
     async featuredAsset(ctx, product) {
-        if (product.featuredAsset) {
+        if (product.featuredAsset !== undefined) {
             return product.featuredAsset;
         }
         return this.assetService.getFeaturedAsset(ctx, product);

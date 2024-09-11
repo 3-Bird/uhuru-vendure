@@ -332,6 +332,10 @@ __decorate([
     __metadata("design:type", tax_category_entity_1.TaxCategory)
 ], OrderLine.prototype, "taxCategory", void 0);
 __decorate([
+    (0, entity_id_decorator_1.EntityId)({ nullable: true }),
+    __metadata("design:type", Object)
+], OrderLine.prototype, "taxCategoryId", void 0);
+__decorate([
     (0, typeorm_1.Index)(),
     (0, typeorm_1.ManyToOne)(type => asset_entity_1.Asset, asset => asset.featuredInVariants, { onDelete: 'SET NULL' }),
     __metadata("design:type", asset_entity_1.Asset)

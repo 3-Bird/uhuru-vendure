@@ -60,7 +60,7 @@ let ShopOrderResolver = class ShopOrderResolver {
         if (ctx.authorizedAsOwnerOnly) {
             const sessionOrder = await this.activeOrderService.getActiveOrder(ctx, args[config_1.ACTIVE_ORDER_INPUT_FIELD_NAME]);
             if (sessionOrder) {
-                return this.orderService.findOne(ctx, sessionOrder.id);
+                return this.orderService.findOne(ctx, sessionOrder.id, relations);
             }
             else {
                 return;
@@ -147,16 +147,16 @@ let ShopOrderResolver = class ShopOrderResolver {
             return await this.orderService.transitionToState(ctx, sessionOrder.id, args.state);
         }
     }
-    async addItemToOrder(ctx, args) {
+    async addItemToOrder(ctx, args, relations) {
         const order = await this.activeOrderService.getActiveOrder(ctx, args[config_1.ACTIVE_ORDER_INPUT_FIELD_NAME], true);
-        return this.orderService.addItemToOrder(ctx, order.id, args.productVariantId, args.quantity, args.customFields);
+        return this.orderService.addItemToOrder(ctx, order.id, args.productVariantId, args.quantity, args.customFields, relations);
     }
-    async adjustOrderLine(ctx, args) {
+    async adjustOrderLine(ctx, args, relations) {
         if (args.quantity === 0) {
             return this.removeOrderLine(ctx, { orderLineId: args.orderLineId });
         }
         const order = await this.activeOrderService.getActiveOrder(ctx, args[config_1.ACTIVE_ORDER_INPUT_FIELD_NAME], true);
-        return this.orderService.adjustOrderLine(ctx, order.id, args.orderLineId, args.quantity, args.customFields);
+        return this.orderService.adjustOrderLine(ctx, order.id, args.orderLineId, args.quantity, args.customFields, relations);
     }
     async removeOrderLine(ctx, args) {
         const order = await this.activeOrderService.getActiveOrder(ctx, args[config_1.ACTIVE_ORDER_INPUT_FIELD_NAME], true);
@@ -224,7 +224,7 @@ __decorate([
     (0, allow_decorator_1.Allow)(generated_shop_types_1.Permission.Owner),
     __param(0, (0, request_context_decorator_1.Ctx)()),
     __param(1, (0, graphql_1.Args)()),
-    __param(2, (0, relations_decorator_1.Relations)(order_entity_1.Order)),
+    __param(2, (0, relations_decorator_1.Relations)({ entity: order_entity_1.Order, omit: ['aggregateOrder', 'sellerOrders'] })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [request_context_1.RequestContext, Object, Array]),
     __metadata("design:returntype", Promise)
@@ -233,7 +233,7 @@ __decorate([
     (0, graphql_1.Query)(),
     (0, allow_decorator_1.Allow)(generated_shop_types_1.Permission.Owner),
     __param(0, (0, request_context_decorator_1.Ctx)()),
-    __param(1, (0, relations_decorator_1.Relations)(order_entity_1.Order)),
+    __param(1, (0, relations_decorator_1.Relations)({ entity: order_entity_1.Order, omit: ['aggregateOrder', 'sellerOrders'] })),
     __param(2, (0, graphql_1.Args)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [request_context_1.RequestContext, Array, Object]),
@@ -244,7 +244,7 @@ __decorate([
     (0, allow_decorator_1.Allow)(generated_shop_types_1.Permission.Owner),
     __param(0, (0, request_context_decorator_1.Ctx)()),
     __param(1, (0, graphql_1.Args)()),
-    __param(2, (0, relations_decorator_1.Relations)(order_entity_1.Order)),
+    __param(2, (0, relations_decorator_1.Relations)({ entity: order_entity_1.Order, omit: ['aggregateOrder', 'sellerOrders'] })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [request_context_1.RequestContext, Object, Array]),
     __metadata("design:returntype", Promise)
@@ -333,8 +333,9 @@ __decorate([
     (0, allow_decorator_1.Allow)(generated_shop_types_1.Permission.UpdateOrder, generated_shop_types_1.Permission.Owner),
     __param(0, (0, request_context_decorator_1.Ctx)()),
     __param(1, (0, graphql_1.Args)()),
+    __param(2, (0, relations_decorator_1.Relations)({ entity: order_entity_1.Order, omit: ['aggregateOrder', 'sellerOrders'] })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [request_context_1.RequestContext, Object]),
+    __metadata("design:paramtypes", [request_context_1.RequestContext, Object, Array]),
     __metadata("design:returntype", Promise)
 ], ShopOrderResolver.prototype, "addItemToOrder", null);
 __decorate([
@@ -343,8 +344,9 @@ __decorate([
     (0, allow_decorator_1.Allow)(generated_shop_types_1.Permission.UpdateOrder, generated_shop_types_1.Permission.Owner),
     __param(0, (0, request_context_decorator_1.Ctx)()),
     __param(1, (0, graphql_1.Args)()),
+    __param(2, (0, relations_decorator_1.Relations)({ entity: order_entity_1.Order, omit: ['aggregateOrder', 'sellerOrders'] })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [request_context_1.RequestContext, Object]),
+    __metadata("design:paramtypes", [request_context_1.RequestContext, Object, Array]),
     __metadata("design:returntype", Promise)
 ], ShopOrderResolver.prototype, "adjustOrderLine", null);
 __decorate([

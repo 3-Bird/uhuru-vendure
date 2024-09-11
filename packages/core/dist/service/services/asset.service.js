@@ -116,6 +116,7 @@ let AssetService = class AssetService {
         if (this.channelService.isChannelAware(entity)) {
             entityWithFeaturedAsset = await this.connection.findOneInChannel(ctx, entityType, entity.id, ctx.channelId, {
                 relations: ['featuredAsset'],
+                loadEagerRelations: false,
             });
         }
         else {
@@ -126,6 +127,7 @@ let AssetService = class AssetService {
                 relations: {
                     featuredAsset: true,
                 },
+                loadEagerRelations: false,
                 // TODO: satisfies
             })
                 .then(result => result !== null && result !== void 0 ? result : undefined);

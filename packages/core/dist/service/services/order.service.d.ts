@@ -225,6 +225,7 @@ export declare class OrderService {
         customFields?: {
             [key: string]: any;
         },
+        relations?: RelationPaths<Order>,
     ): Promise<ErrorResultUnion<UpdateOrderItemsResult, Order>>;
     /**
      * @description
@@ -238,6 +239,7 @@ export declare class OrderService {
         customFields?: {
             [key: string]: any;
         },
+        relations?: RelationPaths<Order>,
     ): Promise<ErrorResultUnion<UpdateOrderItemsResult, Order>>;
     /**
      * @description
@@ -536,5 +538,15 @@ export declare class OrderService {
      * Applies promotions, taxes and shipping to the Order. If the `updatedOrderLines` argument is passed in,
      * then all of those OrderLines will have their prices re-calculated using the configured {@link OrderItemPriceCalculationStrategy}.
      */
-    applyPriceAdjustments(ctx: RequestContext, order: Order, updatedOrderLines?: OrderLine[]): Promise<Order>;
+    applyPriceAdjustments(
+        ctx: RequestContext,
+        order: Order,
+        updatedOrderLines?: OrderLine[],
+        relations?: RelationPaths<Order>,
+    ): Promise<Order>;
+    /**
+     * Applies changes to the shipping lines of an order, adding or removing the relations
+     * in the database.
+     */
+    private applyChangesToShippingLines;
 }

@@ -11,6 +11,7 @@ const graphql_2 = require("graphql");
 const path_1 = __importDefault(require("path"));
 const config_module_1 = require("../../config/config.module");
 const config_service_1 = require("../../config/config.service");
+const index_1 = require("../../config/index");
 const i18n_module_1 = require("../../i18n/i18n.module");
 const i18n_service_1 = require("../../i18n/i18n.service");
 const plugin_metadata_1 = require("../../plugin/plugin-metadata");
@@ -49,9 +50,21 @@ function configureGraphQLModule(getOptions) {
 }
 exports.configureGraphQLModule = configureGraphQLModule;
 async function createGraphQLOptions(i18nService, configService, idCodecService, typesLoader, customFieldRelationResolverService, options) {
-    var _a;
+    var _a, _b;
     const builtSchema = await buildSchemaForApi(options.apiType);
     const resolvers = await (0, generate_resolvers_1.generateResolvers)(configService, customFieldRelationResolverService, options.apiType, builtSchema);
+    const apolloServerPlugins = [
+        new translate_errors_plugin_1.TranslateErrorsPlugin(i18nService),
+        new asset_interceptor_plugin_1.AssetInterceptorPlugin(configService),
+        ...configService.apiOptions.apolloServerPlugins,
+    ];
+    // We only need to add the IdCodecPlugin if the user has configured
+    // a non-default EntityIdStrategy. This is a performance optimization
+    // that prevents unnecessary traversal of each response when no
+    // actual encoding/decoding is taking place.
+    if (!isUsingDefaultEntityIdStrategy((_a = configService.entityOptions.entityIdStrategy) !== null && _a !== void 0 ? _a : configService.entityIdStrategy)) {
+        apolloServerPlugins.unshift(new id_codec_plugin_1.IdCodecPlugin(idCodecService));
+    }
     return {
         path: '/' + options.apiPath,
         typeDefs: (0, graphql_2.printSchema)(builtSchema),
@@ -68,14 +81,9 @@ async function createGraphQLOptions(i18nService, configService, idCodecService, 
         context: (req) => req,
         // This is handled by the Express cors plugin
         cors: false,
-        plugins: [
-            new id_codec_plugin_1.IdCodecPlugin(idCodecService),
-            new translate_errors_plugin_1.TranslateErrorsPlugin(i18nService),
-            new asset_interceptor_plugin_1.AssetInterceptorPlugin(configService),
-            ...configService.apiOptions.apolloServerPlugins,
-        ],
+        plugins: apolloServerPlugins,
         validationRules: options.validationRules,
-        introspection: (_a = configService.apiOptions.introspection) !== null && _a !== void 0 ? _a : true,
+        introspection: (_b = configService.apiOptions.introspection) !== null && _b !== void 0 ? _b : true,
     };
     /**
      * Generates the server's GraphQL schema by combining:
@@ -116,5 +124,9 @@ async function createGraphQLOptions(i18nService, configService, idCodecService, 
         schema = (0, generate_permissions_1.generatePermissionEnum)(schema, configService.authOptions.customPermissions);
         return schema;
     }
+}
+function isUsingDefaultEntityIdStrategy(entityIdStrategy) {
+    return (entityIdStrategy.constructor === index_1.AutoIncrementIdStrategy ||
+        entityIdStrategy.constructor === index_1.UuidIdStrategy);
 }
 //# sourceMappingURL=configure-graphql-module.js.map
