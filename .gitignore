@@ -393,3 +393,6 @@ __admin-ui/
 .yarn/cache
 .yarn/*.gz
 .yarn/unplugged
+
+# Development
+dev/*

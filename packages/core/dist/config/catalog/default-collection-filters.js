@@ -200,16 +200,20 @@ exports.variantIdCollectionFilter = new collection_filter_1.CollectionFilter({
     code: 'variant-id-filter',
     description: [{ languageCode: generated_types_1.LanguageCode.en, value: 'Manually select product variants' }],
     apply: (qb, args) => {
-        if (args.variantIds.length === 0) {
-            return qb;
-        }
+        const emptyIds = args.variantIds.length === 0;
         const variantIdsKey = randomSuffix('variantIds');
         const clause = `productVariant.id IN (:...${variantIdsKey})`;
         const params = { [variantIdsKey]: args.variantIds };
         if (args.combineWithAnd === false) {
+            if (emptyIds) {
+                return qb;
+            }
             return qb.orWhere(clause, params);
         }
         else {
+            if (emptyIds) {
+                return qb.andWhere('1 = 0');
+            }
             return qb.andWhere(clause, params);
         }
     },
@@ -230,16 +234,20 @@ exports.productIdCollectionFilter = new collection_filter_1.CollectionFilter({
     code: 'product-id-filter',
     description: [{ languageCode: generated_types_1.LanguageCode.en, value: 'Manually select products' }],
     apply: (qb, args) => {
-        if (args.productIds.length === 0) {
-            return qb;
-        }
+        const emptyIds = args.productIds.length === 0;
         const productIdsKey = randomSuffix('productIds');
         const clause = `productVariant.productId IN (:...${productIdsKey})`;
         const params = { [productIdsKey]: args.productIds };
         if (args.combineWithAnd === false) {
+            if (emptyIds) {
+                return qb;
+            }
             return qb.orWhere(clause, params);
         }
         else {
+            if (emptyIds) {
+                return qb.andWhere('1 = 0');
+            }
             return qb.andWhere(clause, params);
         }
     },

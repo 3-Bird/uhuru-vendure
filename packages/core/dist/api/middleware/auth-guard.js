@@ -13,7 +13,6 @@ exports.AuthGuard = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
 const generated_types_1 = require("@vendure/common/lib/generated-types");
-const constants_1 = require("../../common/constants");
 const errors_1 = require("../../common/error/errors");
 const config_service_1 = require("../../config/config.service");
 const vendure_logger_1 = require("../../config/logger/vendure-logger");
@@ -23,7 +22,9 @@ const channel_service_1 = require("../../service/services/channel.service");
 const customer_service_1 = require("../../service/services/customer.service");
 const session_service_1 = require("../../service/services/session.service");
 const extract_session_token_1 = require("../common/extract-session-token");
+const is_field_resolver_1 = require("../common/is-field-resolver");
 const parse_context_1 = require("../common/parse-context");
+const request_context_1 = require("../common/request-context");
 const set_session_token_1 = require("../common/set-session-token");
 const allow_decorator_1 = require("../decorators/allow.decorator");
 /**
@@ -46,17 +47,17 @@ let AuthGuard = class AuthGuard {
     }
     async canActivate(context) {
         const { req, res, info } = (0, parse_context_1.parseContext)(context);
-        const isFieldResolver = this.isFieldResolver(info);
+        const targetIsFieldResolver = (0, is_field_resolver_1.isFieldResolver)(info);
         const permissions = this.reflector.get(allow_decorator_1.PERMISSIONS_METADATA_KEY, context.getHandler());
-        if (isFieldResolver && !permissions) {
+        if (targetIsFieldResolver && !permissions) {
             return true;
         }
         const authDisabled = this.configService.authOptions.disableAuth;
         const isPublic = !!permissions && permissions.includes(generated_types_1.Permission.Public);
         const hasOwnerPermission = !!permissions && permissions.includes(generated_types_1.Permission.Owner);
         let requestContext;
-        if (isFieldResolver) {
-            requestContext = req[constants_1.REQUEST_CONTEXT_KEY];
+        if (targetIsFieldResolver) {
+            requestContext = (0, request_context_1.internal_getRequestContext)(req);
         }
         else {
             const session = await this.getSession(req, res, hasOwnerPermission);
@@ -65,7 +66,7 @@ let AuthGuard = class AuthGuard {
             if (requestContextShouldBeReinitialized) {
                 requestContext = await this.requestContextService.fromRequest(req, info, permissions, session);
             }
-            req[constants_1.REQUEST_CONTEXT_KEY] = requestContext;
+            (0, request_context_1.internal_setRequestContext)(req, requestContext, context);
         }
         if (authDisabled || !permissions || isPublic) {
             return true;
@@ -147,18 +148,6 @@ let AuthGuard = class AuthGuard {
             });
         }
         return serializedSession;
-    }
-    /**
-     * Returns true is this guard is being called on a FieldResolver, i.e. not a top-level
-     * Query or Mutation resolver.
-     */
-    isFieldResolver(info) {
-        var _a;
-        if (!info) {
-            return false;
-        }
-        const parentType = (_a = info === null || info === void 0 ? void 0 : info.parentType) === null || _a === void 0 ? void 0 : _a.name;
-        return parentType !== 'Query' && parentType !== 'Mutation' && parentType !== 'Subscription';
     }
 };
 exports.AuthGuard = AuthGuard;

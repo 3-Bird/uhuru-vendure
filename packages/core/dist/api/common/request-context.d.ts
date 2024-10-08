@@ -1,7 +1,9 @@
+import { ExecutionContext } from '@nestjs/common';
 import { CurrencyCode, LanguageCode, Permission } from '@vendure/common/lib/generated-types';
 import { ID, JsonCompatible } from '@vendure/common/lib/shared-types';
 import { Request } from 'express';
 import { TFunction } from 'i18next';
+import { REQUEST_CONTEXT_KEY, REQUEST_CONTEXT_MAP_KEY } from '../../common/constants';
 import { CachedSession } from '../../config/session-cache/session-cache-strategy';
 import { Channel } from '../../entity/channel/channel.entity';
 import { ApiType } from './get-api-type';
@@ -14,6 +16,62 @@ export type SerializedRequestContext = {
     _isAuthorized: boolean;
     _authorizedAsOwnerOnly: boolean;
 };
+/**
+ * This object is used to store the RequestContext on the Express Request object.
+ */
+interface RequestContextStore {
+    /**
+     * This is the default RequestContext for the handler.
+     */
+    default: RequestContext;
+    /**
+     * If a transaction is started, the resulting RequestContext is stored here.
+     * This RequestContext will have a transaction manager attached via the
+     * TRANSACTION_MANAGER_KEY symbol.
+     *
+     * When a transaction is started, the TRANSACTION_MANAGER_KEY symbol is added to the RequestContext
+     * object. This is then detected inside the {@link internal_setRequestContext} function and the
+     * RequestContext object is stored in the RequestContextStore under the withTransactionManager key.
+     */
+    withTransactionManager?: RequestContext;
+}
+interface RequestWithStores extends Request {
+    [REQUEST_CONTEXT_MAP_KEY]?: Map<Function, RequestContextStore>;
+    [REQUEST_CONTEXT_KEY]?: RequestContextStore;
+}
+/**
+ * @description
+ * This function is used to set the {@link RequestContext} on the `req` object. This is the underlying
+ * mechanism by which we are able to access the `RequestContext` from different places.
+ *
+ * For example, here is a diagram to show how, in an incoming API request, we are able to store
+ * and retrieve the `RequestContext` in a resolver:
+ * ```
+ * - query { product }
+ * |
+ * - AuthGuard.canActivate()
+ * |  | creates a `RequestContext`, stores it on `req`
+ * |
+ * - product() resolver
+ *    | @Ctx() decorator fetching `RequestContext` from `req`
+ * ```
+ *
+ * We named it this way to discourage usage outside the framework internals.
+ */
+export declare function internal_setRequestContext(
+    req: RequestWithStores,
+    ctx: RequestContext,
+    executionContext?: ExecutionContext,
+): void;
+/**
+ * @description
+ * Gets the {@link RequestContext} from the `req` object. See {@link internal_setRequestContext}
+ * for more details on this mechanism.
+ */
+export declare function internal_getRequestContext(
+    req: RequestWithStores,
+    executionContext?: ExecutionContext,
+): RequestContext;
 /**
  * @description
  * The RequestContext holds information relevant to the current request, which may be
@@ -149,3 +207,4 @@ export declare class RequestContext {
      */
     private shallowCloneRequestObject;
 }
+export {};

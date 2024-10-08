@@ -152,8 +152,15 @@ export class PostgresSearchStrategy implements SearchStrategy {
         input: SearchInput,
         forceGroup: boolean = false,
     ): SelectQueryBuilder<SearchIndexItem> {
-        const { term, facetValueFilters, facetValueIds, facetValueOperator, collectionId, collectionSlug } =
-            input;
+        const {
+            term,
+            facetValueFilters,
+            facetValueIds,
+            facetValueOperator,
+            collectionId,
+            collectionSlug,
+            priceRange,
+        } = input;
         // join multiple words with the logical AND operator
         const termLogicalAnd = term
             ? term
@@ -164,6 +171,10 @@ export class PostgresSearchStrategy implements SearchStrategy {
             : '';
 
         qb.where('1 = 1');
+
+        if (priceRange?.min != null) qb.andWhere('si.price >= :minPrice', { minPrice: priceRange?.min });
+        if (priceRange?.min != null) qb.andWhere('si.price <= :maxPrice', { maxPrice: priceRange?.max });
+
         if (term && term.length > this.minTermLength) {
             const minIfGrouped = (colName: string) =>
                 input.groupByProduct || forceGroup ? `MIN(${colName})` : colName;

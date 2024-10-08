@@ -124,7 +124,7 @@ let OrderModifier = class OrderModifier {
             return existingOrderLine;
         }
         const productVariant = await this.getProductVariantOrThrow(ctx, productVariantId, order);
-        const featuredAssetId = (_a = productVariant.featuredAssetId) !== null && _a !== void 0 ? _a : productVariant.featuredAssetId;
+        const featuredAssetId = (_a = productVariant.featuredAssetId) !== null && _a !== void 0 ? _a : productVariant.product.featuredAssetId;
         const orderLine = await this.connection.getRepository(ctx, order_line_entity_1.OrderLine).save(new order_line_entity_1.OrderLine({
             productVariant,
             taxCategory: productVariant.taxCategory,

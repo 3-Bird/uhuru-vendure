@@ -17,6 +17,7 @@ exports.AdminUiPlugin = void 0;
 const shared_constants_1 = require("@vendure/common/lib/shared-constants");
 const core_1 = require("@vendure/core");
 const express_1 = __importDefault(require("express"));
+const express_rate_limit_1 = require("express-rate-limit");
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
 const api_extensions_1 = require("./api/api-extensions");
@@ -140,7 +141,7 @@ let AdminUiPlugin = AdminUiPlugin_1 = class AdminUiPlugin {
         }
         else {
             core_1.Logger.info('Creating admin ui middleware (prod mode)', constants_1.loggerCtx);
-            consumer.apply(await this.createStaticServer(app)).forRoutes(route);
+            consumer.apply(this.createStaticServer(app)).forRoutes(route);
             if (app && typeof app.compile === 'function') {
                 core_1.Logger.info('Compiling Admin UI app in production mode...', constants_1.loggerCtx);
                 app.compile()
@@ -157,9 +158,16 @@ let AdminUiPlugin = AdminUiPlugin_1 = class AdminUiPlugin {
         }
         (0, core_1.registerPluginStartupMessage)('Admin UI', route);
     }
-    async createStaticServer(app) {
+    createStaticServer(app) {
         const adminUiAppPath = (app && app.path) || constants_1.DEFAULT_APP_PATH;
+        const limiter = (0, express_rate_limit_1.rateLimit)({
+            windowMs: 60 * 1000,
+            limit: process.env.NODE_ENV === 'production' ? 500 : 2000,
+            standardHeaders: true,
+            legacyHeaders: false,
+        });
         const adminUiServer = express_1.default.Router();
+        adminUiServer.use(limiter);
         adminUiServer.use(express_1.default.static(adminUiAppPath));
         adminUiServer.use((req, res) => {
             res.sendFile(path_1.default.join(adminUiAppPath, 'index.html'));

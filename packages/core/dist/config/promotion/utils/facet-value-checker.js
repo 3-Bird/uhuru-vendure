@@ -61,6 +61,7 @@ class FacetValueChecker {
                 .findOne({
                 where: { id: orderLine.productVariant.id },
                 relations: ['product', 'product.facetValues', 'facetValues'],
+                loadEagerRelations: false,
             })
                 .then(result => result !== null && result !== void 0 ? result : undefined);
             if (!variant) {

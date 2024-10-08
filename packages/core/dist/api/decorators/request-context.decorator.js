@@ -2,7 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ctx = void 0;
 const common_1 = require("@nestjs/common");
-const constants_1 = require("../../common/constants");
+const is_field_resolver_1 = require("../common/is-field-resolver");
+const parse_context_1 = require("../common/parse-context");
+const request_context_1 = require("../common/request-context");
 /**
  * @description
  * Resolver param decorator which extracts the {@link RequestContext} from the incoming
@@ -19,22 +21,9 @@ const constants_1 = require("../../common/constants");
  * @docsCategory request
  * @docsPage Ctx Decorator
  */
-exports.Ctx = (0, common_1.createParamDecorator)((data, ctx) => {
-    const getContext = (req) => {
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        const map = req[constants_1.REQUEST_CONTEXT_MAP_KEY];
-        // If a map contains associated transactional context with this handler
-        // we have to use it. It means that this handler was wrapped with @Transaction decorator.
-        // Otherwise use default context.
-        return (map === null || map === void 0 ? void 0 : map.get(ctx.getHandler())) || req[constants_1.REQUEST_CONTEXT_KEY];
-    };
-    if (ctx.getType() === 'graphql') {
-        // GraphQL request
-        return getContext(ctx.getArgByIndex(2).req);
-    }
-    else {
-        // REST request
-        return getContext(ctx.switchToHttp().getRequest());
-    }
+exports.Ctx = (0, common_1.createParamDecorator)((data, executionContext) => {
+    const context = (0, parse_context_1.parseContext)(executionContext);
+    const handlerIsFieldResolver = context.isGraphQL && (0, is_field_resolver_1.isFieldResolver)(context.info);
+    return (0, request_context_1.internal_getRequestContext)(context.req, handlerIsFieldResolver ? undefined : executionContext);
 });
 //# sourceMappingURL=request-context.decorator.js.map

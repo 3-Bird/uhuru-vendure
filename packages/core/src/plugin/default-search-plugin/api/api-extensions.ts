@@ -6,7 +6,13 @@ export const stockStatusExtension = gql`
         inStock: Boolean!
     }
 
+    input SearchPriceRangeInput {
+        min: Int
+        max: Int
+    }
+
     extend input SearchInput {
         inStock: Boolean
+        priceRange: SearchPriceRangeInput
     }
 `;

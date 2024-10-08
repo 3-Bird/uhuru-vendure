@@ -49,8 +49,7 @@ class TransactionWrapper {
             throw error;
         }
         finally {
-            if (!queryRunner.isTransactionActive
-                && queryRunner.isReleased === false) {
+            if (!queryRunner.isTransactionActive && queryRunner.isReleased === false) {
                 // There is a check for an active transaction
                 // because this could be a nested transaction (savepoint).
                 await queryRunner.release();

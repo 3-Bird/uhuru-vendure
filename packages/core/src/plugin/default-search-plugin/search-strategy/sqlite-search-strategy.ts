@@ -90,6 +90,7 @@ export class SqliteSearchStrategy implements SearchStrategy {
         const skip = input.skip || 0;
         const sort = input.sort;
         const qb = this.connection.getRepository(ctx, SearchIndexItem).createQueryBuilder('si');
+
         if (input.groupByProduct) {
             qb.addSelect('MIN(si.price)', 'minPrice');
             qb.addSelect('MAX(si.price)', 'maxPrice');
@@ -150,10 +151,21 @@ export class SqliteSearchStrategy implements SearchStrategy {
         qb: SelectQueryBuilder<SearchIndexItem>,
         input: SearchInput,
     ): SelectQueryBuilder<SearchIndexItem> {
-        const { term, facetValueFilters, facetValueIds, facetValueOperator, collectionId, collectionSlug } =
-            input;
+        const {
+            term,
+            facetValueFilters,
+            facetValueIds,
+            facetValueOperator,
+            collectionId,
+            collectionSlug,
+            priceRange,
+        } = input;
 
         qb.where('1 = 1');
+
+        if (priceRange?.min != null) qb.andWhere('si.price >= :minPrice', { minPrice: priceRange?.min });
+        if (priceRange?.min != null) qb.andWhere('si.price <= :maxPrice', { maxPrice: priceRange?.max });
+
         if (term && term.length > this.minTermLength) {
             // Note: SQLite does not natively have fulltext search capabilities,
             // so we just use a weighted LIKE match

@@ -1,5 +1,4 @@
 import { ID } from '@vendure/common/lib/shared-types';
-import { ConfigService } from '../../config/config.service';
 import { RelationCustomFieldConfig } from '../../config/custom-field/custom-field-types';
 import { TransactionalConnection } from '../../connection/transactional-connection';
 import { VendureEntity } from '../../entity/base/base.entity';
@@ -14,12 +13,10 @@ export interface ResolveRelationConfig {
 }
 export declare class CustomFieldRelationResolverService {
     private connection;
-    private configService;
     private productPriceApplicator;
     private translator;
     constructor(
         connection: TransactionalConnection,
-        configService: ConfigService,
         productPriceApplicator: ProductPriceApplicator,
         translator: TranslatorService,
     );

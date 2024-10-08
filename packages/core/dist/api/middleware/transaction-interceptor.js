@@ -13,7 +13,7 @@ exports.TransactionInterceptor = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
 const rxjs_1 = require("rxjs");
-const constants_1 = require("../../common/constants");
+const __1 = require("..");
 const transaction_wrapper_1 = require("../../connection/transaction-wrapper");
 const transactional_connection_1 = require("../../connection/transactional-connection");
 const parse_context_1 = require("../common/parse-context");
@@ -30,33 +30,21 @@ let TransactionInterceptor = class TransactionInterceptor {
         this.reflector = reflector;
     }
     intercept(context, next) {
-        const { isGraphQL, req } = (0, parse_context_1.parseContext)(context);
-        const ctx = req[constants_1.REQUEST_CONTEXT_KEY];
+        const { req } = (0, parse_context_1.parseContext)(context);
+        const ctx = (0, __1.internal_getRequestContext)(req, context);
         if (ctx) {
             const transactionMode = this.reflector.get(transaction_decorator_1.TRANSACTION_MODE_METADATA_KEY, context.getHandler());
             const transactionIsolationLevel = this.reflector.get(transaction_decorator_1.TRANSACTION_ISOLATION_LEVEL_METADATA_KEY, context.getHandler());
             return (0, rxjs_1.of)(this.transactionWrapper.executeInTransaction(ctx, _ctx => {
-                this.registerTransactionalContext(_ctx, context.getHandler(), req);
+                // Registers transactional request context associated
+                // with execution handler function
+                (0, __1.internal_setRequestContext)(req, _ctx, context);
                 return next.handle();
             }, transactionMode, transactionIsolationLevel, this.connection.rawConnection));
         }
         else {
             return next.handle();
         }
-    }
-    /**
-     * Registers transactional request context associated with execution handler function
-     *
-     * @param ctx transactional request context
-     * @param handler handler function from ExecutionContext
-     * @param req Request object
-     */
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    registerTransactionalContext(ctx, handler, req) {
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        const map = req[constants_1.REQUEST_CONTEXT_MAP_KEY] || new Map();
-        map.set(handler, ctx);
-        req[constants_1.REQUEST_CONTEXT_MAP_KEY] = map;
     }
 };
 exports.TransactionInterceptor = TransactionInterceptor;

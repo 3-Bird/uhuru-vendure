@@ -73,6 +73,11 @@ exports.normalizeEmailAddress = normalizeEmailAddress;
  * identifiers for other authentication methods.
  */
 function isEmailAddressLike(input) {
+    if (input.length > 1000) {
+        // This limit is in place to prevent abuse via a polynomial-time regex attack
+        // See https://github.com/vendure-ecommerce/vendure/security/code-scanning/43
+        throw new Error('Input too long');
+    }
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.trim());
 }
 exports.isEmailAddressLike = isEmailAddressLike;

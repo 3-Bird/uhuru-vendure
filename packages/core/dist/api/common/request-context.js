@@ -1,9 +1,90 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RequestContext = void 0;
+exports.RequestContext = exports.internal_getRequestContext = exports.internal_setRequestContext = void 0;
 const shared_utils_1 = require("@vendure/common/lib/shared-utils");
+const constants_1 = require("../../common/constants");
 const utils_1 = require("../../common/utils");
 const channel_entity_1 = require("../../entity/channel/channel.entity");
+/**
+ * @description
+ * This function is used to set the {@link RequestContext} on the `req` object. This is the underlying
+ * mechanism by which we are able to access the `RequestContext` from different places.
+ *
+ * For example, here is a diagram to show how, in an incoming API request, we are able to store
+ * and retrieve the `RequestContext` in a resolver:
+ * ```
+ * - query { product }
+ * |
+ * - AuthGuard.canActivate()
+ * |  | creates a `RequestContext`, stores it on `req`
+ * |
+ * - product() resolver
+ *    | @Ctx() decorator fetching `RequestContext` from `req`
+ * ```
+ *
+ * We named it this way to discourage usage outside the framework internals.
+ */
+function internal_setRequestContext(req, ctx, executionContext) {
+    var _a;
+    // If we have access to the `ExecutionContext`, it means we are able to bind
+    // the `ctx` object to the specific "handler", i.e. the resolver function (for GraphQL)
+    // or controller (for REST).
+    let item;
+    if (executionContext && typeof executionContext.getHandler === 'function') {
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        const map = req[constants_1.REQUEST_CONTEXT_MAP_KEY] || new Map();
+        item = map.get(executionContext.getHandler());
+        const ctxHasTransaction = Object.getOwnPropertySymbols(ctx).includes(constants_1.TRANSACTION_MANAGER_KEY);
+        if (item) {
+            item.default = (_a = item.default) !== null && _a !== void 0 ? _a : ctx;
+            if (ctxHasTransaction) {
+                item.withTransactionManager = ctx;
+            }
+        }
+        else {
+            item = {
+                default: ctx,
+                withTransactionManager: ctxHasTransaction ? ctx : undefined,
+            };
+        }
+        map.set(executionContext.getHandler(), item);
+        req[constants_1.REQUEST_CONTEXT_MAP_KEY] = map;
+    }
+    // We also bind to a shared key so that we can access the `ctx` object
+    // later even if we don't have a reference to the `ExecutionContext`
+    req[constants_1.REQUEST_CONTEXT_KEY] = item !== null && item !== void 0 ? item : {
+        default: ctx,
+    };
+}
+exports.internal_setRequestContext = internal_setRequestContext;
+/**
+ * @description
+ * Gets the {@link RequestContext} from the `req` object. See {@link internal_setRequestContext}
+ * for more details on this mechanism.
+ */
+function internal_getRequestContext(req, executionContext) {
+    var _a, _b;
+    let item;
+    if (executionContext && typeof executionContext.getHandler === 'function') {
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        const map = req[constants_1.REQUEST_CONTEXT_MAP_KEY];
+        item = map === null || map === void 0 ? void 0 : map.get(executionContext.getHandler());
+        // If we have a ctx associated with the current handler (resolver function), we
+        // return it. Otherwise, we fall back to the shared key which will be there.
+        if (item) {
+            return item.withTransactionManager || item.default;
+        }
+    }
+    if (!item) {
+        item = req[constants_1.REQUEST_CONTEXT_KEY];
+    }
+    const transactionalCtx = (item === null || item === void 0 ? void 0 : item.withTransactionManager) &&
+        ((_b = (_a = item.withTransactionManager[constants_1.TRANSACTION_MANAGER_KEY]) === null || _a === void 0 ? void 0 : _a.queryRunner) === null || _b === void 0 ? void 0 : _b.isReleased) === false
+        ? item.withTransactionManager
+        : undefined;
+    return transactionalCtx || item.default;
+}
+exports.internal_getRequestContext = internal_getRequestContext;
 /**
  * @description
  * The RequestContext holds information relevant to the current request, which may be

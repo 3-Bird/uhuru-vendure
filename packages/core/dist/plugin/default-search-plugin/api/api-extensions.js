@@ -10,8 +10,14 @@ exports.stockStatusExtension = (0, graphql_tag_1.default) `
         inStock: Boolean!
     }
 
+    input SearchPriceRangeInput {
+        min: Int
+        max: Int
+    }
+
     extend input SearchInput {
         inStock: Boolean
+        priceRange: SearchPriceRangeInput
     }
 `;
 //# sourceMappingURL=api-extensions.js.map

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.defaultConfig = void 0;
 const generated_types_1 = require("@vendure/common/lib/generated-types");
 const shared_constants_1 = require("@vendure/common/lib/shared-constants");
+const crypto_1 = require("crypto");
 const typeorm_health_check_strategy_1 = require("../health-check/typeorm-health-check-strategy");
 const in_memory_job_queue_strategy_1 = require("../job-queue/in-memory-job-queue-strategy");
 const in_memory_job_buffer_storage_strategy_1 = require("../job-queue/job-buffer/in-memory-job-buffer-storage-strategy");
@@ -83,7 +84,7 @@ exports.defaultConfig = {
         disableAuth: false,
         tokenMethod: 'cookie',
         cookieOptions: {
-            secret: Math.random().toString(36).substr(3),
+            secret: (0, crypto_1.randomBytes)(16).toString('base64url'),
             httpOnly: true,
             sameSite: 'lax',
         },

@@ -12,15 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CustomFieldRelationResolverService = void 0;
 const common_1 = require("@nestjs/common");
 const FindOptionsUtils_1 = require("typeorm/find-options/FindOptionsUtils");
-const config_service_1 = require("../../config/config.service");
 const transactional_connection_1 = require("../../connection/transactional-connection");
 const product_variant_entity_1 = require("../../entity/product-variant/product-variant.entity");
 const product_price_applicator_1 = require("../../service/helpers/product-price-applicator/product-price-applicator");
 const translator_service_1 = require("../../service/helpers/translator/translator.service");
 let CustomFieldRelationResolverService = class CustomFieldRelationResolverService {
-    constructor(connection, configService, productPriceApplicator, translator) {
+    constructor(connection, productPriceApplicator, translator) {
         this.connection = connection;
-        this.configService = configService;
         this.productPriceApplicator = productPriceApplicator;
         this.translator = translator;
     }
@@ -84,7 +82,6 @@ exports.CustomFieldRelationResolverService = CustomFieldRelationResolverService;
 exports.CustomFieldRelationResolverService = CustomFieldRelationResolverService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [transactional_connection_1.TransactionalConnection,
-        config_service_1.ConfigService,
         product_price_applicator_1.ProductPriceApplicator,
         translator_service_1.TranslatorService])
 ], CustomFieldRelationResolverService);

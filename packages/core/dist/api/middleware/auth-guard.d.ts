@@ -33,9 +33,4 @@ export declare class AuthGuard implements CanActivate {
     canActivate(context: ExecutionContext): Promise<boolean>;
     private setActiveChannel;
     private getSession;
-    /**
-     * Returns true is this guard is being called on a FieldResolver, i.e. not a top-level
-     * Query or Mutation resolver.
-     */
-    private isFieldResolver;
 }

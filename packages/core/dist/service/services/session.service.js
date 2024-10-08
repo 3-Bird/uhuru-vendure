@@ -38,7 +38,9 @@ let SessionService = class SessionService {
         this.orderService = orderService;
         this.sessionCacheTimeoutMs = 50;
         this.sessionCacheStrategy = this.configService.authOptions.sessionCacheStrategy;
-        this.sessionDurationInMs = (0, ms_1.default)(this.configService.authOptions.sessionDuration);
+        const { sessionDuration } = this.configService.authOptions;
+        this.sessionDurationInMs =
+            typeof sessionDuration === 'string' ? (0, ms_1.default)(sessionDuration) : sessionDuration;
         // This allows us to register this class as a TypeORM Subscriber while also allowing
         // the injection on dependencies. See https://docs.nestjs.com/techniques/database#subscribers
         this.connection.rawConnection.subscribers.push(this);

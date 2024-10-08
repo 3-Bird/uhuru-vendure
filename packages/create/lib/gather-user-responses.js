@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkCancel = exports.gatherCiUserResponses = exports.gatherUserResponses = void 0;
 const prompts_1 = require("@clack/prompts");
 const shared_constants_1 = require("@vendure/common/lib/shared-constants");
+const crypto_1 = require("crypto");
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const handlebars_1 = __importDefault(require("handlebars"));
 const path_1 = __importDefault(require("path"));
@@ -153,7 +154,7 @@ async function generateSources(root, answers, packageManager) {
     handlebars_1.default.registerHelper('escapeSingle', (aString) => {
         return typeof aString === 'string' ? aString.replace(/'/g, "\\'") : aString;
     });
-    const templateContext = Object.assign(Object.assign({}, answers), { useYarn: packageManager === 'yarn', dbType: answers.dbType === 'sqlite' ? 'better-sqlite3' : answers.dbType, name: path_1.default.basename(root), isSQLite: answers.dbType === 'sqlite', isSQLjs: answers.dbType === 'sqljs', requiresConnection: answers.dbType !== 'sqlite' && answers.dbType !== 'sqljs', cookieSecret: Math.random().toString(36).substr(2) });
+    const templateContext = Object.assign(Object.assign({}, answers), { useYarn: packageManager === 'yarn', dbType: answers.dbType === 'sqlite' ? 'better-sqlite3' : answers.dbType, name: path_1.default.basename(root), isSQLite: answers.dbType === 'sqlite', isSQLjs: answers.dbType === 'sqljs', requiresConnection: answers.dbType !== 'sqlite' && answers.dbType !== 'sqljs', cookieSecret: (0, crypto_1.randomBytes)(16).toString('base64url') });
     async function createSourceFile(filename, noEscape = false) {
         const template = await fs_extra_1.default.readFile(assetPath(filename), 'utf-8');
         return handlebars_1.default.compile(template, { noEscape })(templateContext);

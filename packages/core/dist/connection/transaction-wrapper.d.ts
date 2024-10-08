@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { Connection } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { RequestContext } from '../api/common/request-context';
 import { TransactionIsolationLevel, TransactionMode } from '../api/decorators/transaction.decorator';
 /**
@@ -23,7 +23,7 @@ export declare class TransactionWrapper {
         work: (ctx: RequestContext) => Observable<T> | Promise<T>,
         mode: TransactionMode,
         isolationLevel: TransactionIsolationLevel | undefined,
-        connection: Connection,
+        connection: DataSource,
     ): Promise<T>;
     /**
      * Attempts to start a DB transaction, with retry logic in the case that a transaction

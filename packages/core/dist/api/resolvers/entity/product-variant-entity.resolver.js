@@ -222,7 +222,7 @@ let ProductVariantAdminEntityResolver = class ProductVariantAdminEntityResolver 
     async stockMovements(ctx, productVariant, args) {
         return this.stockMovementService.getStockMovementsByProductVariantId(ctx, productVariant.id, args.options);
     }
-    async stockOnHand(ctx, productVariant, args) {
+    async stockOnHand(ctx, productVariant) {
         const { stockOnHand } = await this.stockLevelService.getAvailableStock(ctx, productVariant.id);
         return stockOnHand;
     }
@@ -260,10 +260,8 @@ __decorate([
     (0, graphql_1.ResolveField)(),
     __param(0, (0, request_context_decorator_1.Ctx)()),
     __param(1, (0, graphql_1.Parent)()),
-    __param(2, (0, graphql_1.Args)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [request_context_1.RequestContext,
-        product_variant_entity_1.ProductVariant, Object]),
+    __metadata("design:paramtypes", [request_context_1.RequestContext, product_variant_entity_1.ProductVariant]),
     __metadata("design:returntype", Promise)
 ], ProductVariantAdminEntityResolver.prototype, "stockOnHand", null);
 __decorate([

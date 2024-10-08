@@ -152,8 +152,18 @@ export class MysqlSearchStrategy implements SearchStrategy {
         qb: SelectQueryBuilder<SearchIndexItem>,
         input: SearchInput,
     ): SelectQueryBuilder<SearchIndexItem> {
-        const { term, facetValueFilters, facetValueIds, facetValueOperator, collectionId, collectionSlug } =
-            input;
+        const {
+            term,
+            facetValueFilters,
+            facetValueIds,
+            facetValueOperator,
+            collectionId,
+            collectionSlug,
+            priceRange,
+        } = input;
+
+        if (priceRange?.min != null) qb.andWhere('si.price >= :minPrice', { minPrice: priceRange?.min });
+        if (priceRange?.min != null) qb.andWhere('si.price <= :maxPrice', { maxPrice: priceRange?.max });
 
         if (term && term.length > this.minTermLength) {
             const safeTerm = term

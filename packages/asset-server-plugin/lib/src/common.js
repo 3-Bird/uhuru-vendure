@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getValidFormat = exports.getAssetUrlPrefixFn = void 0;
-const constants_1 = require("@vendure/core/dist/common/constants");
+const core_1 = require("@vendure/core");
 function getAssetUrlPrefixFn(options) {
     const { assetUrlPrefix, route } = options;
     if (assetUrlPrefix == null) {
@@ -16,7 +16,7 @@ function getAssetUrlPrefixFn(options) {
     }
     if (typeof assetUrlPrefix === 'function') {
         return (request, identifier) => {
-            const ctx = request[constants_1.REQUEST_CONTEXT_KEY];
+            const ctx = (0, core_1.internal_getRequestContext)(request);
             return assetUrlPrefix(ctx, identifier);
         };
     }

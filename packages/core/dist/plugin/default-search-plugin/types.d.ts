@@ -125,6 +125,11 @@ export interface DefaultSearchPluginInitOptions {
  */
 export interface SearchInput extends GeneratedSearchInput {
     inStock?: boolean;
+    priceRange?: SearchPriceRangeInput;
+}
+export interface SearchPriceRangeInput {
+    min?: number;
+    max?: number;
 }
 export type ReindexMessageResponse = {
     total: number;

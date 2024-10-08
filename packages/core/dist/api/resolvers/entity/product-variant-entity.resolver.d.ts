@@ -60,13 +60,7 @@ export declare class ProductVariantAdminEntityResolver {
             options: StockMovementListOptions;
         },
     ): Promise<PaginatedList<StockMovement>>;
-    stockOnHand(
-        ctx: RequestContext,
-        productVariant: ProductVariant,
-        args: {
-            options: StockMovementListOptions;
-        },
-    ): Promise<number>;
+    stockOnHand(ctx: RequestContext, productVariant: ProductVariant): Promise<number>;
     stockAllocated(
         ctx: RequestContext,
         productVariant: ProductVariant,

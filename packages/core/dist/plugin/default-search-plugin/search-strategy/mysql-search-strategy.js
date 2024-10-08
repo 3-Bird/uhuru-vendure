@@ -108,7 +108,11 @@ class MysqlSearchStrategy {
         return totalItemsQb.getRawOne().then(res => res.total);
     }
     applyTermAndFilters(ctx, qb, input) {
-        const { term, facetValueFilters, facetValueIds, facetValueOperator, collectionId, collectionSlug } = input;
+        const { term, facetValueFilters, facetValueIds, facetValueOperator, collectionId, collectionSlug, priceRange, } = input;
+        if ((priceRange === null || priceRange === void 0 ? void 0 : priceRange.min) != null)
+            qb.andWhere('si.price >= :minPrice', { minPrice: priceRange === null || priceRange === void 0 ? void 0 : priceRange.min });
+        if ((priceRange === null || priceRange === void 0 ? void 0 : priceRange.min) != null)
+            qb.andWhere('si.price <= :maxPrice', { maxPrice: priceRange === null || priceRange === void 0 ? void 0 : priceRange.max });
         if (term && term.length > this.minTermLength) {
             const safeTerm = term
                 .replace(/"/g, '')

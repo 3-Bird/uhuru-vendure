@@ -169,7 +169,6 @@ let ShopOrderResolver = class ShopOrderResolver {
     async applyCouponCode(ctx, args) {
         const order = await this.activeOrderService.getActiveOrder(ctx, args[config_1.ACTIVE_ORDER_INPUT_FIELD_NAME], true);
         return this.orderService.applyCouponCode(ctx, order.id, args.couponCode);
-        return this.orderService.applyCouponCode(ctx, order.id, args.couponCode);
     }
     async removeCouponCode(ctx, args) {
         const order = await this.activeOrderService.getActiveOrder(ctx, args[config_1.ACTIVE_ORDER_INPUT_FIELD_NAME], true);

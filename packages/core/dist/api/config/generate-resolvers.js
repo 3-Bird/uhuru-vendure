@@ -3,12 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateResolvers = void 0;
 const generated_types_1 = require("@vendure/common/lib/generated-types");
 const graphql_scalars_1 = require("graphql-scalars");
-const constants_1 = require("../../common/constants");
 const errors_1 = require("../../common/error/errors");
 const generated_graphql_admin_errors_1 = require("../../common/error/generated-graphql-admin-errors");
 const generated_graphql_shop_errors_1 = require("../../common/error/generated-graphql-shop-errors");
 const vendure_logger_1 = require("../../config/logger/vendure-logger");
 const plugin_metadata_1 = require("../../plugin/plugin-metadata");
+const request_context_1 = require("../common/request-context");
 const user_has_permissions_on_custom_field_1 = require("../common/user-has-permissions-on-custom-field");
 const get_custom_fields_config_without_interfaces_1 = require("./get-custom-fields-config-without-interfaces");
 const money_scalar_1 = require("./money-scalar");
@@ -156,7 +156,7 @@ function generateCustomFieldRelationResolvers(configService, customFieldRelation
             let resolver;
             if (isRelationalType(fieldDef)) {
                 resolver = async (source, args, context) => {
-                    const ctx = context.req[constants_1.REQUEST_CONTEXT_KEY];
+                    const ctx = (0, request_context_1.internal_getRequestContext)(context.req);
                     if (!(0, user_has_permissions_on_custom_field_1.userHasPermissionsOnCustomField)(ctx, fieldDef)) {
                         return null;
                     }
@@ -181,7 +181,7 @@ function generateCustomFieldRelationResolvers(configService, customFieldRelation
             }
             else {
                 resolver = async (source, args, context) => {
-                    const ctx = context.req[constants_1.REQUEST_CONTEXT_KEY];
+                    const ctx = (0, request_context_1.internal_getRequestContext)(context.req);
                     if (!(0, user_has_permissions_on_custom_field_1.userHasPermissionsOnCustomField)(ctx, fieldDef)) {
                         return null;
                     }

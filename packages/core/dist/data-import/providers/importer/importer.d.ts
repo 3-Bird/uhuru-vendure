@@ -1,15 +1,17 @@
 /// <reference types="node" />
 import { ImportInfo, LanguageCode } from '@vendure/common/lib/generated-types';
+import { ID } from '@vendure/common/lib/shared-types';
 import { Observable } from 'rxjs';
 import { Stream } from 'stream';
 import { RequestContext } from '../../../api/common/request-context';
 import { ConfigService } from '../../../config/config.service';
+import { CustomFieldConfig } from '../../../config/custom-field/custom-field-types';
 import { ChannelService } from '../../../service/services/channel.service';
 import { FacetValueService } from '../../../service/services/facet-value.service';
 import { FacetService } from '../../../service/services/facet.service';
 import { TaxCategoryService } from '../../../service/services/tax-category.service';
 import { AssetImporter } from '../asset-importer/asset-importer';
-import { ImportParser, ParsedProductWithVariants } from '../import-parser/import-parser';
+import { ImportParser, ParsedFacet, ParsedProductWithVariants } from '../import-parser/import-parser';
 import { FastImporterService } from './fast-importer.service';
 export interface ImportProgress extends ImportInfo {
     currentProduct: string;
@@ -71,8 +73,19 @@ export declare class Importer {
         rows: ParsedProductWithVariants[],
         onProgress: OnProgressFn,
     ): Promise<string[]>;
-    private getFacetValueIds;
-    private processCustomFieldValues;
+    protected getFacetValueIds(
+        ctx: RequestContext,
+        facets: ParsedFacet[],
+        languageCode: LanguageCode,
+    ): Promise<ID[]>;
+    protected processCustomFieldValues(
+        customFields: {
+            [field: string]: string;
+        },
+        config: CustomFieldConfig[],
+    ): {
+        [field: string]: string | boolean | string[] | undefined;
+    };
     /**
      * Attempts to match a TaxCategory entity against the name supplied in the import table. If no matches
      * are found, the first TaxCategory id is returned.

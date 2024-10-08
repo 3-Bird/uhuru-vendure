@@ -300,8 +300,8 @@ let AssetServerPlugin = AssetServerPlugin_1 = class AssetServerPlugin {
                         return;
                     }
                     catch (e) {
-                        core_1.Logger.error(e, constants_1.loggerCtx, e.stack);
-                        res.status(500).send(e.message);
+                        core_1.Logger.error(e.message, constants_1.loggerCtx, e.stack);
+                        res.status(500).send('An error occurred when generating the image');
                         return;
                     }
                 }

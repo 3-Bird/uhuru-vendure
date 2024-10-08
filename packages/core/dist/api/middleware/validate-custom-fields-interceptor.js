@@ -15,10 +15,10 @@ const core_1 = require("@nestjs/core");
 const graphql_1 = require("@nestjs/graphql");
 const shared_utils_1 = require("@vendure/common/lib/shared-utils");
 const graphql_2 = require("graphql");
-const constants_1 = require("../../common/constants");
 const injector_1 = require("../../common/injector");
 const config_service_1 = require("../../config/config.service");
 const parse_context_1 = require("../common/parse-context");
+const request_context_1 = require("../common/request-context");
 const validate_custom_field_value_1 = require("../common/validate-custom-field-value");
 /**
  * This interceptor is responsible for enforcing the validation constraints defined for any CustomFields.
@@ -43,7 +43,7 @@ let ValidateCustomFieldsInterceptor = class ValidateCustomFieldsInterceptor {
             const gqlExecutionContext = graphql_1.GqlExecutionContext.create(context);
             const { operation, schema } = parsedContext.info;
             const variables = gqlExecutionContext.getArgs();
-            const ctx = parsedContext.req[constants_1.REQUEST_CONTEXT_KEY];
+            const ctx = (0, request_context_1.internal_getRequestContext)(parsedContext.req);
             if (operation.operation === 'mutation') {
                 const inputTypeNames = this.getArgumentMap(operation, schema);
                 for (const [inputName, typeName] of Object.entries(inputTypeNames)) {
@@ -132,6 +132,7 @@ let ValidateCustomFieldsInterceptor = class ValidateCustomFieldsInterceptor {
 exports.ValidateCustomFieldsInterceptor = ValidateCustomFieldsInterceptor;
 exports.ValidateCustomFieldsInterceptor = ValidateCustomFieldsInterceptor = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [config_service_1.ConfigService, core_1.ModuleRef])
+    __metadata("design:paramtypes", [config_service_1.ConfigService,
+        core_1.ModuleRef])
 ], ValidateCustomFieldsInterceptor);
 //# sourceMappingURL=validate-custom-fields-interceptor.js.map

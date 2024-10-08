@@ -163,6 +163,7 @@ let RequestContextService = class RequestContextService {
 exports.RequestContextService = RequestContextService;
 exports.RequestContextService = RequestContextService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [channel_service_1.ChannelService, config_service_1.ConfigService])
+    __metadata("design:paramtypes", [channel_service_1.ChannelService,
+        config_service_1.ConfigService])
 ], RequestContextService);
 //# sourceMappingURL=request-context.service.js.map
